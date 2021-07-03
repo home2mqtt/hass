@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 	"strings"
+
+	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
 
 type IConfig interface {
@@ -112,4 +114,14 @@ func ProcessConfig(prefix string, topic string, payload []byte, consumer ConfigC
 	}
 	config.consume(consumer, nodeid, objectid)
 	return config, nil
+}
+
+func Discover(client mqtt.Client, consumer ConfigConsumer, errs chan error) {
+	client.Subscribe(GetDiscoveryWildcard("homeassistant"), 0, func(client mqtt.Client, msg mqtt.Message) {
+		_, err := ProcessConfig("homeassistant", msg.Topic(), msg.Payload(), consumer)
+		if (err != nil) && (errs != nil) {
+			errs <- err
+		}
+	}).Wait()
+	client.Publish("discover", 0, false, "1").Wait()
 }

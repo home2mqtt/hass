@@ -2,7 +2,6 @@ package main
 
 import (
 	"log"
-	"time"
 
 	"github.com/balazsgrill/hass"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
@@ -38,17 +37,14 @@ func main() {
 	if err != nil {
 		log.Println("Connection failed: ", token.Error())
 	}
+	defer client.Disconnect(100)
 
 	var consumer hass.ConfigConsumer = &logConsumer{}
 
-	client.Subscribe(hass.GetDiscoveryWildcard("homeassistant"), 0, func(client mqtt.Client, msg mqtt.Message) {
-		_, err := hass.ProcessConfig("homeassistant", msg.Topic(), msg.Payload(), consumer)
-		if err != nil {
-			log.Println(err)
-		}
-	})
-	client.Publish("discover", 0, false, 0)
+	errs := make(chan error)
+	hass.Discover(client, consumer, errs)
 
-	time.Sleep(10 * time.Second)
-	client.Disconnect(100)
+	for err = range errs {
+		log.Println(err)
+	}
 }
