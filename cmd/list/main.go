@@ -42,7 +42,7 @@ func main() {
 	var consumer hass.ConfigConsumer = &logConsumer{}
 
 	errs := make(chan error)
-	hass.Discover(client, consumer, errs)
+	hass.ConsumeDiscoveredConfigs(client, consumer, errs)
 
 	for err = range errs {
 		log.Println(err)
