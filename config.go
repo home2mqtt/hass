@@ -48,13 +48,21 @@ type HVAC struct {
 
 type Light struct {
 	BasicConfig
-	CommandTopic           string `json:"command_topic,omitempty"`
-	Name                   string `json:"name,omitempty"`
-	BrightnessCommandTopic string `json:"brightness_command_topic,omitempty"`
-	BrightnessScale        int32  `json:"brightness_scale"`
-	BrightnessStateTopic   string `json:"brightness_state_topic,omitempty"`
-	OnCommandType          string `json:"on_command_type,omitempty"`
-	StateTopic             string `json:"state_topic,omitempty"`
+	CommandTopic           string   `json:"command_topic,omitempty"`
+	Name                   string   `json:"name,omitempty"`
+	Brightness             bool     `json:"brightness,omitempty"`
+	BrightnessCommandTopic string   `json:"brightness_command_topic,omitempty"`
+	BrightnessScale        int32    `json:"brightness_scale"`
+	BrightnessStateTopic   string   `json:"brightness_state_topic,omitempty"`
+	ColorTemp              bool     `json:"color_temp,omitempty"`
+	OnCommandType          string   `json:"on_command_type,omitempty"`
+	StateTopic             string   `json:"state_topic,omitempty"`
+	Effect                 bool     `json:"effect,omitempty"`
+	EffectList             []string `json:"effect_list,omitempty"`
+	HS                     bool     `json:"hs,omitempty"`
+	JsonAttributesTopic    string   `json:"json_attributes_topic,omitempty"`
+	Schema                 string   `json:"schema,omitempty"`
+	XY                     bool     `json:"xy,omitempty"`
 }
 
 //https://www.home-assistant.io/integrations/sensor.mqtt/
