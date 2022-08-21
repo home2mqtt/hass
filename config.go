@@ -72,6 +72,9 @@ type Sensor struct {
 	UnitOfMeasurement string `json:"unit_of_measurement"`
 	Topic             string `json:"state_topic"`
 	Icon              string `json:"icon"`
+	StateClass        string `json:"total_increasing,omitempty"`
+	ValueTemplate     string `json:"value_template,omitempty"`
+	DeviceClass       string `json:"device_class,omitempty"`
 }
 
 //https://www.home-assistant.io/integrations/switch.mqtt/
