@@ -72,7 +72,7 @@ type Sensor struct {
 	UnitOfMeasurement string `json:"unit_of_measurement"`
 	Topic             string `json:"state_topic"`
 	Icon              string `json:"icon,omitempty"`
-	StateClass        string `json:"total_increasing,omitempty"`
+	StateClass        string `json:"state_class,omitempty"`
 	ValueTemplate     string `json:"value_template,omitempty"`
 	DeviceClass       string `json:"device_class,omitempty"`
 }
