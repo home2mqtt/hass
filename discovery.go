@@ -66,6 +66,14 @@ func (c *Light) Consume(consumer ConfigConsumer, nodeID string, objectID string)
 	consumer.ConsumeLight(c, nodeID, objectID)
 }
 
+func (*BinarySensor) GetComponent() string {
+	return "binary_sensor"
+}
+
+func (c *BinarySensor) Consume(consumer ConfigConsumer, nodeID string, objectID string) {
+	consumer.ConsumeBinarySensor(c, nodeID, objectID)
+}
+
 func GetDiscoveryTopic(c IConfig, prefix string, nodeID string, objectID string) string {
 	return prefix + "/" + c.GetComponent() + "/" + nodeID + "/" + objectID + "/config"
 }
@@ -85,6 +93,7 @@ type ConfigConsumer interface {
 	ConsumeSwitch(c *Switch, nodeID string, objectID string)
 	ConsumeSensor(c *Sensor, nodeID string, objectID string)
 	ConsumeLight(c *Light, nodeID string, objectID string)
+	ConsumeBinarySensor(c *BinarySensor, nodeID string, objectID string)
 }
 
 func ProcessConfig(prefix string, confData DiscoveredConfig) (IConfig, string, string, error) {
@@ -110,6 +119,8 @@ func ProcessConfig(prefix string, confData DiscoveredConfig) (IConfig, string, s
 		config = &Sensor{}
 	case "light":
 		config = &Light{}
+	case "binary_sensor":
+		config = &BinarySensor{}
 	default:
 		return nil, "", "", errors.New("Unknown component: " + confData.Topic)
 	}

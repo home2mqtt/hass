@@ -83,3 +83,14 @@ type Switch struct {
 	CommandTopic string `json:"command_topic,omitempty"`
 	Name         string `json:"name,omitempty"`
 }
+
+type BinarySensor struct {
+	BasicConfig
+	Name          string `json:"name,omitempty"`
+	ValueTemplate string `json:"value_template,omitempty"`
+	DeviceClass   string `json:"device_class,omitempty"`
+	Topic         string `json:"state_topic"`
+	Icon          string `json:"icon,omitempty"`
+	PayLoadOff    any    `json:"payload_off,omitempty"`
+	PayLoadOn     any    `json:"payload_on,omitempty"`
+}

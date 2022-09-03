@@ -27,6 +27,9 @@ func (*logConsumer) ConsumeSensor(c *hass.Sensor, nodeID string, objectID string
 func (*logConsumer) ConsumeLight(c *hass.Light, nodeID string, objectID string) {
 	log.Printf("Light: %s, %s", nodeID, objectID)
 }
+func (*logConsumer) ConsumeBinarySensor(c *hass.BinarySensor, nodeID string, objectID string) {
+	log.Printf("Binary Sensor: %s, %s", nodeID, objectID)
+}
 
 func main() {
 	opts := mqtt.NewClientOptions().AddBroker("tcp://192.168.0.1:1883").SetAutoReconnect(true)
