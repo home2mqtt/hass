@@ -80,8 +80,12 @@ type Sensor struct {
 //https://www.home-assistant.io/integrations/switch.mqtt/
 type Switch struct {
 	BasicConfig
-	CommandTopic string `json:"command_topic,omitempty"`
-	Name         string `json:"name,omitempty"`
+	CommandTopic  string `json:"command_topic,omitempty"`
+	Name          string `json:"name,omitempty"`
+	StateTopic    string `json:"state_topic,omitempty"`
+	ValueTemplate string `json:"value_template,omitempty"`
+	PayLoadOff    any    `json:"payload_off,omitempty"`
+	PayLoadOn     any    `json:"payload_on,omitempty"`
 }
 
 type BinarySensor struct {
