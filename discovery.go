@@ -11,11 +11,16 @@ import (
 type IConfig interface {
 	GetComponent() string
 	Consume(consumer ConfigConsumer, nodeID string, objectID string)
+	GetBasic() *BasicConfig
 }
 
 type DiscoveredConfig struct {
 	Topic   string
 	Payload []byte
+}
+
+func (c *BasicConfig) GetBasic() *BasicConfig {
+	return c
 }
 
 func (*Cover) GetComponent() string {
