@@ -13,14 +13,20 @@ type switch_impl struct {
 var _ ISwitch = &switch_impl{}
 
 func NewSwitch(runtime IPubSubRuntime, config *Switch) ISwitch {
-	state := NewSensor[BoolSensorEvent]()
 	payloadon := fmt.Sprint(config.PayLoadOn)
-	//payloadof := fmt.Sprint(config.PayLoadOff)
-	runtime.Receive(config.StateTopic, func(topic string, payload []byte) {
-		str := string(payload)
-		on := strings.EqualFold(str, payloadon)
-		state.Events() <- BoolSensorEvent{Value: on}
-	})
+	payloadoff := fmt.Sprint(config.PayLoadOff)
+	state := &BaseSensor[BoolSensorEvent]{
+		events: ParseSensorValue(runtime, config.StateTopic, config.ValueTemplate, func(s string) (BoolSensorEvent, error) {
+			if strings.EqualFold(s, payloadon) {
+				return BoolSensorEvent{Value: true}, nil
+			}
+			if strings.EqualFold(s, payloadoff) {
+				return BoolSensorEvent{Value: false}, nil
+			}
+			return BoolSensorEvent{}, fmt.Errorf("unknown boolean value: %s", s)
+		}),
+	}
+
 	return &switch_impl{
 		actuator: baseActuator{
 			client: runtime,
