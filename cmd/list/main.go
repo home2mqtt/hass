@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/balazsgrill/hass"
+	"github.com/balazsgrill/hass/paho"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
 
@@ -45,7 +46,9 @@ func main() {
 	var consumer hass.ConfigConsumer = &logConsumer{}
 
 	errs := make(chan error)
-	hass.ConsumeDiscoveredConfigs(client, consumer, errs)
+	hass.ConsumeDiscoveredConfigs(&paho.PahoPubSub{
+		Client: client,
+	}, consumer, errs)
 
 	for err = range errs {
 		log.Println(err)

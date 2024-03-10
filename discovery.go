@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"strings"
-
-	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
 
 type IConfig interface {
@@ -136,32 +134,31 @@ func ProcessConfig(prefix string, confData DiscoveredConfig) (IConfig, string, s
 	return config, nodeid, objectid, nil
 }
 
-func extractDiscoveryMessage(msg mqtt.Message) DiscoveredConfig {
-	return DiscoveredConfig{
-		Topic:   msg.Topic(),
-		Payload: msg.Payload(),
-	}
-}
-
-func Discover(client mqtt.Client, prefix string) (chan DiscoveredConfig, error) {
+func Discover(client IPubSubRuntime, prefix string) (chan DiscoveredConfig, error) {
 	result := make(chan DiscoveredConfig)
 
-	client.Subscribe(GetDiscoveryWildcard(prefix), 0, func(client mqtt.Client, msg mqtt.Message) {
-		result <- extractDiscoveryMessage(msg)
-	}).Wait()
+	client.Receive(GetDiscoveryWildcard(prefix), func(topic string, payload []byte) {
+		result <- DiscoveredConfig{
+			Topic:   topic,
+			Payload: payload,
+		}
+	})
 
-	client.Publish("discover", 0, false, "1").Wait()
+	client.Send("discover", []byte("1"))
 	return result, nil
 }
 
-func ConsumeDiscoveredConfigs(client mqtt.Client, consumer ConfigConsumer, errs chan error) {
-	client.Subscribe(GetDiscoveryWildcard("homeassistant"), 0, func(client mqtt.Client, msg mqtt.Message) {
-		config, nodeid, objectid, err := ProcessConfig("homeassistant", extractDiscoveryMessage(msg))
+func ConsumeDiscoveredConfigs(client IPubSubRuntime, consumer ConfigConsumer, errs chan error) {
+	client.Receive(GetDiscoveryWildcard("homeassistant"), func(topic string, payload []byte) {
+		config, nodeid, objectid, err := ProcessConfig("homeassistant", DiscoveredConfig{
+			Topic:   topic,
+			Payload: payload,
+		})
 		if (err != nil) && (errs != nil) {
 			errs <- err
 		} else {
 			config.Consume(consumer, nodeid, objectid)
 		}
-	}).Wait()
-	client.Publish("discover", 0, false, "1").Wait()
+	})
+	client.Send("discover", []byte("1"))
 }
