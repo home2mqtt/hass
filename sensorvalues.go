@@ -7,6 +7,17 @@ import (
 	"github.com/noirbizarre/gonja"
 )
 
+func GenericSensor(context IPubSubRuntime, sensor *Sensor) ISensor[string] {
+	values := ParseSensorValue(context, sensor.Topic, sensor.ValueTemplate, func(s string) (string, error) {
+		return s, nil
+	})
+	result := &BaseSensor[string]{
+		events: values,
+	}
+
+	return result
+}
+
 func ParseSensorValue[T any](context IPubSubRuntime, Topic string, ValueTemplate string, parse func(string) (T, error)) chan T {
 	result := make(chan T)
 

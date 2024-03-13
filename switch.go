@@ -7,7 +7,7 @@ import (
 
 type switch_impl struct {
 	actuator baseActuator
-	state    ISensor[BoolSensorEvent]
+	state    ISensor[bool]
 }
 
 var _ ISwitch = &switch_impl{}
@@ -15,15 +15,15 @@ var _ ISwitch = &switch_impl{}
 func NewSwitch(runtime IPubSubRuntime, config *Switch) ISwitch {
 	payloadon := fmt.Sprint(config.PayLoadOn)
 	payloadoff := fmt.Sprint(config.PayLoadOff)
-	state := &BaseSensor[BoolSensorEvent]{
-		events: ParseSensorValue(runtime, config.StateTopic, config.ValueTemplate, func(s string) (BoolSensorEvent, error) {
+	state := &BaseSensor[bool]{
+		events: ParseSensorValue(runtime, config.StateTopic, config.ValueTemplate, func(s string) (bool, error) {
 			if strings.EqualFold(s, payloadon) {
-				return BoolSensorEvent{Value: true}, nil
+				return true, nil
 			}
 			if strings.EqualFold(s, payloadoff) {
-				return BoolSensorEvent{Value: false}, nil
+				return false, nil
 			}
-			return BoolSensorEvent{}, fmt.Errorf("unknown boolean value: %s", s)
+			return false, fmt.Errorf("unknown boolean value: %s", s)
 		}),
 	}
 
@@ -36,7 +36,7 @@ func NewSwitch(runtime IPubSubRuntime, config *Switch) ISwitch {
 	}
 }
 
-func (sw *switch_impl) State() ISensor[BoolSensorEvent] {
+func (sw *switch_impl) State() ISensor[bool] {
 	return sw.state
 }
 

@@ -5,10 +5,6 @@ type ISensor[SensorEvent any] interface {
 	Events() chan SensorEvent
 }
 
-type BoolSensorEvent struct {
-	Value bool
-}
-
 type ActionEvent struct {
 	Action string
 }
@@ -33,7 +29,19 @@ type IShutter interface {
 }
 
 type ISwitch interface {
-	State() ISensor[BoolSensorEvent]
+	State() ISensor[bool]
 	Toggle()
 	Set(on bool)
+}
+
+type ILight interface {
+	ISwitch
+	Brightness() IIntSettable
+	ColorTemp() IIntSettable
+}
+
+type IIntSettable interface {
+	SetValue(value int)
+	Scale() int
+	Values() chan int
 }
