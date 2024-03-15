@@ -1,73 +1,87 @@
 package hass
 
 import (
-	"fmt"
-	"strconv"
+	"encoding/json"
+	"log"
 )
-
-type LightState struct {
-	Brightness int    `json:"brightness,omitempty"`
-	ColorMode  string `json:"color_mode,omitempty"`
-	ColorTemp  int    `json:"color_temp,omitempty"`
-	State      string `json:"state,omitempty"`
-}
 
 type light_impl struct {
 	actuator   baseActuator
-	state      light_state[bool]
-	brightness *light_state[int]
-	color_temp *light_state[int]
-}
-
-type light_state[Type any] struct {
-	light  *baseActuator
-	values chan Type
-	key    string
-}
-
-func (state *light_state[Type]) send(command string) {
-	state.light.send(fmt.Sprintf("{\"%s\":%s}", state.key, command))
+	state      onOffStateField
+	brightness *intStateField
+	color_temp *intStateField
 }
 
 var _ ILight = &light_impl{}
 
-func NewLight(pubsub IPubSubRuntime, config Light) ILight {
+func NewLight(pubsub IPubSubRuntime, config *Light) ILight {
 	result := &light_impl{
 		actuator: baseActuator{
 			client: pubsub,
 			topic:  config.CommandTopic,
 		},
 	}
-	result.state = light_state[bool]{
-		light:  &result.actuator,
-		values: make(chan bool),
-		key:    "state",
+	pubsub.Receive(config.StateTopic, func(topic string, payload []byte) {
+		var data map[string]interface{}
+		err := json.Unmarshal(payload, &data)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		// TODO Check fields and propagate to state fields
+		result.state.Process(data)
+		if result.brightness != nil {
+			result.brightness.Process(data)
+		}
+		if result.color_temp != nil {
+			result.color_temp.Process(data)
+		}
+	})
+
+	result.state = onOffStateField{
+		stateField: stateField[bool]{
+			actuator: &result.actuator,
+			values:   make(chan bool),
+			key:      "state",
+		},
 	}
 	if config.Brightness {
-		result.brightness = &light_state[int]{
-			light:  &result.actuator,
-			values: make(chan int),
-			key:    "brightness",
+		result.brightness = &intStateField{
+			stateField: stateField[int]{
+				actuator: &result.actuator,
+				values:   make(chan int),
+				key:      "brightness",
+			},
+			scale: int(config.BrightnessScale),
+		}
+	}
+	if config.ColorMode {
+		for _, colormode := range config.SupportedColorModes {
+			switch colormode {
+			case "color_temp":
+				result.color_temp = &intStateField{
+					stateField: stateField[int]{
+						actuator: &result.actuator,
+						values:   make(chan int),
+						key:      "color_temp",
+					},
+					scale: 254,
+				}
+			}
 		}
 	}
 	return result
 }
 
 func (d *light_impl) State() ISensor[bool] {
-	return d.State()
+	return &d.state
 }
 
 func (d *light_impl) Toggle() {
 	d.state.send("TOGGLE")
 }
 func (d *light_impl) Set(on bool) {
-	var v string
-	if on {
-		v = "ON"
-	} else {
-		v = "OFF"
-	}
-	d.state.send(v)
+	d.state.SetValue(on)
 }
 
 func (d *light_impl) Brightness() IIntSettable {
@@ -76,16 +90,4 @@ func (d *light_impl) Brightness() IIntSettable {
 
 func (d *light_impl) ColorTemp() IIntSettable {
 	return d.color_temp
-}
-
-func (d *light_state[T]) SetValue(value int) {
-	d.send(strconv.Itoa(value))
-}
-
-func (d *light_state[_]) Scale() int {
-	return 254
-}
-
-func (d *light_state[T]) Values() chan T {
-	return d.values
 }

@@ -41,7 +41,7 @@ type ILight interface {
 }
 
 type IIntSettable interface {
+	ISensor[int]
 	SetValue(value int)
 	Scale() int
-	Values() chan int
 }

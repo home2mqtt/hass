@@ -54,7 +54,8 @@ type Light struct {
 	BrightnessCommandTopic string   `json:"brightness_command_topic,omitempty"`
 	BrightnessScale        int32    `json:"brightness_scale"`
 	BrightnessStateTopic   string   `json:"brightness_state_topic,omitempty"`
-	ColorTemp              bool     `json:"color_temp,omitempty"`
+	ColorMode              bool     `json:"color_mode,omitempty"`
+	SupportedColorModes    []string `json:"supported_color_modes,omitempty"`
 	OnCommandType          string   `json:"on_command_type,omitempty"`
 	StateTopic             string   `json:"state_topic,omitempty"`
 	Effect                 bool     `json:"effect,omitempty"`
@@ -65,7 +66,7 @@ type Light struct {
 	XY                     bool     `json:"xy,omitempty"`
 }
 
-//https://www.home-assistant.io/integrations/sensor.mqtt/
+// https://www.home-assistant.io/integrations/sensor.mqtt/
 type Sensor struct {
 	BasicConfig
 	Name              string `json:"name,omitempty"`
@@ -77,7 +78,7 @@ type Sensor struct {
 	DeviceClass       string `json:"device_class,omitempty"`
 }
 
-//https://www.home-assistant.io/integrations/switch.mqtt/
+// https://www.home-assistant.io/integrations/switch.mqtt/
 type Switch struct {
 	BasicConfig
 	CommandTopic  string `json:"command_topic,omitempty"`
