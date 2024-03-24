@@ -8,6 +8,7 @@ type IPubSubRuntime interface {
 type IConnecter interface {
 	Connect() error
 	Disconnect()
+	ConnectionState() chan bool
 }
 
 type IPubSubConnecterRuntime interface {

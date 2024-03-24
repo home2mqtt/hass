@@ -46,7 +46,7 @@ type stateField[Type any] struct {
 }
 
 func (state *stateField[Type]) send(command string) {
-	state.actuator.send(fmt.Sprintf("{\"%s\":%s}", state.key, command))
+	state.actuator.send(fmt.Sprintf("{\"%s\":\"%s\"}", state.key, command))
 }
 
 func (d *stateField[_]) Close() error {
@@ -91,7 +91,7 @@ func (field *onOffStateField) Process(state map[string]interface{}) {
 			field.values <- true
 		}
 		if strings.EqualFold("OFF", str) {
-			field.values <- true
+			field.values <- false
 		}
 	}
 }
