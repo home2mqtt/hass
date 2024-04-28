@@ -6,6 +6,8 @@ import (
 	"strings"
 )
 
+var getStatePayload = []byte("{\"state\":\"\"}")
+
 type BaseSensor[SensorEvent any] struct {
 	events chan SensorEvent
 }

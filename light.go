@@ -37,6 +37,7 @@ func NewLight(pubsub IPubSubRuntime, config *Light) ILight {
 			result.color_temp.Process(data)
 		}
 	})
+	pubsub.Send(config.StateTopic+"/get", getStatePayload)
 
 	result.state = onOffStateField{
 		stateField: stateField[bool]{

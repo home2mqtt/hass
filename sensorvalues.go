@@ -51,5 +51,6 @@ func ParseSensorValue[T any](context IPubSubRuntime, Topic string, ValueTemplate
 			break
 		}
 	})
+	context.Send(Topic+"/get", getStatePayload)
 	return result
 }
