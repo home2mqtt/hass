@@ -11,6 +11,6 @@ func AnnounceDevice(client IPubSubRuntime, prefix string, nodeid string, objecti
 		return err
 	}
 	topic := prefix + "/" + device.GetComponent() + "/" + nodeid + "/" + objectid + "/config"
-	client.Send(topic, c)
+	client.SendRetained(topic, c)
 	return nil
 }

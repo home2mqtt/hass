@@ -29,6 +29,7 @@ type DInput struct {
 	StateTopic string `json:"state_topic"`
 }
 
+// https://www.home-assistant.io/integrations/climate.mqtt/
 type HVAC struct {
 	BasicConfig
 	Name string `json:"name,omitempty"`

@@ -2,6 +2,7 @@ package hass
 
 type IPubSubRuntime interface {
 	Send(topic string, payload []byte) error
+	SendRetained(topic string, payload []byte) error
 	Receive(topicpattern string, callback func(topic string, payload []byte))
 }
 
