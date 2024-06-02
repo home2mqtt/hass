@@ -21,6 +21,10 @@ type PahoPubSub struct {
 
 var _ hass.IPubSubConnecterRuntime = &PahoPubSub{}
 
+func NewByURL(url string) hass.IPubSubConnecterRuntime {
+	return New(mqtt.NewClientOptions().AddBroker(url))
+}
+
 func New(options *mqtt.ClientOptions) hass.IPubSubConnecterRuntime {
 	result := &PahoPubSub{
 		subscriptions: make(map[string][]func(topic string, payload []byte)),
