@@ -3,8 +3,8 @@ package paho
 import (
 	"log"
 
-	"github.com/balazsgrill/hass"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
+	"github.com/home2mqtt/hass"
 )
 
 type msg struct {

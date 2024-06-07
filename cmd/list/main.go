@@ -3,9 +3,9 @@ package main
 import (
 	"log"
 
-	"github.com/balazsgrill/hass"
-	"github.com/balazsgrill/hass/paho"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
+	"github.com/home2mqtt/hass"
+	"github.com/home2mqtt/hass/paho"
 )
 
 type logConsumer struct{}

@@ -1,4 +1,4 @@
-module github.com/balazsgrill/hass
+module github.com/home2mqtt/hass
 
 go 1.18
 
