@@ -1,31 +1,31 @@
-package hass
+package proxy
 
 import (
 	"fmt"
 	"strings"
+
+	"github.com/home2mqtt/hass"
 )
 
 type switch_impl struct {
 	actuator baseActuator
-	state    ISensor[bool]
+	state    hass.ISensor[bool]
 }
 
-var _ ISwitch = &switch_impl{}
+var _ hass.ISwitch = &switch_impl{}
 
-func NewSwitch(runtime IPubSubRuntime, config *Switch) ISwitch {
+func NewSwitch(runtime hass.IPubSubRuntime, config *hass.Switch) hass.ISwitch {
 	payloadon := fmt.Sprint(config.PayLoadOn)
 	payloadoff := fmt.Sprint(config.PayLoadOff)
-	state := &BaseSensor[bool]{
-		events: ParseSensorValue(runtime, config.StateTopic, config.ValueTemplate, func(s string) (bool, error) {
-			if strings.EqualFold(s, payloadon) {
-				return true, nil
-			}
-			if strings.EqualFold(s, payloadoff) {
-				return false, nil
-			}
-			return false, fmt.Errorf("unknown boolean value: %s", s)
-		}),
-	}
+	state := hass.ChanToSensor(ParseSensorValue(runtime, config.StateTopic, config.ValueTemplate, func(s string) (bool, error) {
+		if strings.EqualFold(s, payloadon) {
+			return true, nil
+		}
+		if strings.EqualFold(s, payloadoff) {
+			return false, nil
+		}
+		return false, fmt.Errorf("unknown boolean value: %s", s)
+	}))
 
 	return &switch_impl{
 		actuator: baseActuator{
@@ -36,7 +36,7 @@ func NewSwitch(runtime IPubSubRuntime, config *Switch) ISwitch {
 	}
 }
 
-func (sw *switch_impl) State() ISensor[bool] {
+func (sw *switch_impl) State() hass.ISensor[bool] {
 	return sw.state
 }
 

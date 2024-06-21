@@ -1,11 +1,13 @@
-package hass
+package proxy
+
+import "github.com/home2mqtt/hass"
 
 type shutter struct {
 	baseActuator
 	basic bool
 }
 
-func BasicShutter(runtime IPubSubRuntime, conf *Cover) IShutter {
+func BasicShutter(runtime hass.IPubSubRuntime, conf *hass.Cover) hass.IShutter {
 	result := &shutter{
 		basic: true,
 	}
@@ -13,7 +15,7 @@ func BasicShutter(runtime IPubSubRuntime, conf *Cover) IShutter {
 	return result
 }
 
-func Shutter(runtime IPubSubRuntime, conf *Cover) IShutter {
+func Shutter(runtime hass.IPubSubRuntime, conf *hass.Cover) hass.IShutter {
 	result := &shutter{}
 	result.init(runtime, conf.CommandTopic)
 	return result

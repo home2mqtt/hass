@@ -5,15 +5,32 @@ type ISensor[SensorEvent any] interface {
 	Events() chan SensorEvent
 }
 
+type IField[Type any] interface {
+	ISensor[Type]
+	SetValue(value Type)
+}
+
+type IBoolField interface {
+	IField[bool]
+	Toggle()
+}
+
+type IEnumField interface {
+	IField[string]
+	List() []string
+}
+
 type ActionEvent struct {
 	Action string
 }
 
-type IHVAC[StateType any] interface {
-	Stop() (StateType, error)
-	Restart(StateType) error
-	State() StateType
-	IsOn(StateType) bool
+type IHVAC interface {
+	Power() IField[bool]
+	Mode() IEnumField
+	Fan() IEnumField
+	Swing() IEnumField
+	TargetTemp() IField[float64]
+	Temp() ISensor[float64]
 }
 
 type IBasicShutter interface {
@@ -41,7 +58,6 @@ type ILight interface {
 }
 
 type IIntSettable interface {
-	ISensor[int]
-	SetValue(value int)
+	IField[int]
 	Scale() int
 }
