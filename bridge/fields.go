@@ -2,6 +2,7 @@ package bridge
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/home2mqtt/hass"
 )
@@ -14,9 +15,14 @@ func AttachSensor[T any](runtime hass.IPubSubRuntime, stateTopic string, valueTe
 	}()
 }
 
-func AttachField[T any](runtime hass.IPubSubRuntime, stateTopic string, commandTopic string, field hass.IField[T]) {
+func AttachField[T any](runtime hass.IPubSubRuntime, stateTopic string, commandTopic string, field hass.IField[T], parseValue func(str string) (T, error)) {
 	runtime.Receive(commandTopic, func(topic string, payload []byte) {
-		field.SetValue(field.ParseValue(payload))
+		value, err := parseValue(string(payload))
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		field.SetValue(value)
 	})
 	AttachSensor[T](runtime, stateTopic, "", field)
 }
