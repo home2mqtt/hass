@@ -37,6 +37,8 @@ type IBasicShutter interface {
 	Open()
 	Close()
 	Stop()
+	Range() int
+	Position() ISensor[int]
 }
 
 type IShutter interface {

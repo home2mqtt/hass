@@ -16,11 +16,12 @@ type BasicConfig struct {
 
 type Cover struct {
 	BasicConfig
-	CommandTopic   string `json:"command_topic,omitempty"`
-	Name           string `json:"name,omitempty"`
-	PositionTopic  string `json:"position_topic,omitempty"`
-	PositionOpen   int    `json:"position_open"`
-	PositionClosed int    `json:"position_closed"`
+	CommandTopic     string `json:"command_topic,omitempty"`
+	Name             string `json:"name,omitempty"`
+	PositionTopic    string `json:"position_topic,omitempty"`
+	PositionTemplate string `json:"position_template,omitempty"`
+	PositionOpen     int    `json:"position_open"`
+	PositionClosed   int    `json:"position_closed"`
 }
 
 type DInput struct {
