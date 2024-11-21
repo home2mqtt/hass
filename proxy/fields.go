@@ -51,7 +51,7 @@ func NewBoolField(runtime hass.IPubSubRuntime, topic string, cmdtopic string) ha
 		runtime.Receive(topic, func(topic string, payload []byte) {
 			value := string(payload)
 			onoff := strings.EqualFold(value, "on")
-			f.Events() <- onoff
+			f.SendEvent(onoff)
 		})
 	}
 	return f

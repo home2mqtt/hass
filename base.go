@@ -1,26 +1,30 @@
 package hass
 
 type BaseSensor[SensorEvent any] struct {
-	events chan SensorEvent
+	handler func(SensorEvent)
 }
 
-func (s *BaseSensor[SensorEvent]) Close() error {
-	close(s.events)
-	return nil
+func (s *BaseSensor[SensorEvent]) ReceiveEvent(handler func(SensorEvent)) {
+	s.handler = handler
 }
 
-func (s *BaseSensor[SensorEvent]) Events() chan SensorEvent {
-	return s.events
+func (s *BaseSensor[SensorEvent]) SendEvent(event SensorEvent) {
+	if s.handler != nil {
+		s.handler(event)
+	}
 }
 
 func ChanToSensor[SensorEvent any](c chan SensorEvent) ISensor[SensorEvent] {
-	return &BaseSensor[SensorEvent]{
-		events: c,
-	}
+	result := &BaseSensor[SensorEvent]{}
+	go func() {
+		for {
+			s := <-c
+			result.SendEvent(s)
+		}
+	}()
+	return result
 }
 
 func NewSensor[SensorEvent any]() ISensor[SensorEvent] {
-	return &BaseSensor[SensorEvent]{
-		events: make(chan SensorEvent),
-	}
+	return &BaseSensor[SensorEvent]{}
 }

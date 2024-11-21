@@ -8,11 +8,9 @@ import (
 )
 
 func AttachSensor[T any](runtime hass.IPubSubRuntime, stateTopic string, valueTemplate string, sensor hass.ISensor[T]) {
-	go func() {
-		for v := range sensor.Events() {
-			runtime.Send(stateTopic, []byte(fmt.Sprint(v)))
-		}
-	}()
+	sensor.ReceiveEvent(func(value T) {
+		runtime.Send(stateTopic, []byte(fmt.Sprint(value)))
+	})
 }
 
 func AttachField[T any](runtime hass.IPubSubRuntime, stateTopic string, commandTopic string, field hass.IField[T], parseValue func(str string) (T, error)) {

@@ -1,8 +1,8 @@
 package hass
 
 type ISensor[SensorEvent any] interface {
-	Close() error
-	Events() chan SensorEvent
+	SendEvent(event SensorEvent)
+	ReceiveEvent(func(event SensorEvent))
 }
 
 type IField[Type any] interface {

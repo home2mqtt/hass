@@ -66,7 +66,7 @@ func (d *intStateField) SetValue(value int) {
 func (field *intStateField) notify(value string) {
 	v, err := strconv.Atoi(fmt.Sprint(value))
 	if err != nil {
-		field.Events() <- v
+		field.SendEvent(v)
 	}
 }
 
@@ -86,10 +86,10 @@ func (field *onOffStateField) Toggle() {
 
 func (field *onOffStateField) notify(str string) {
 	if strings.EqualFold("ON", str) {
-		field.Events() <- true
+		field.SendEvent(true)
 	}
 	if strings.EqualFold("OFF", str) {
-		field.Events() <- false
+		field.SendEvent(false)
 	}
 }
 

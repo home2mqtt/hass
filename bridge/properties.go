@@ -38,6 +38,17 @@ func (pc *PropertyContext) DefineFloat(name string) IProperty[float64] {
 	}
 }
 
+func (pc *PropertyContext) DefineOnOff(name string) IProperty[bool] {
+	return &onOffProperty{
+		property: property{
+			PropertyContext: pc,
+			name:            name,
+		},
+		onValue:  "ON",
+		offValue: "OFF",
+	}
+}
+
 type property struct {
 	*PropertyContext
 	name string
@@ -79,6 +90,32 @@ func (p *floatProperty) OnCommand(callback func(value float64)) {
 			callback(payload)
 		} else {
 			log.Printf("Float value error received on %s: %v\n", topic, err)
+		}
+	})
+}
+
+type onOffProperty struct {
+	property
+	onValue  string
+	offValue string
+}
+
+func (p *onOffProperty) NotifyState(value bool) {
+	if value {
+		hass.SendString(p, p.StateTopic(), p.onValue)
+	} else {
+		hass.SendString(p, p.StateTopic(), p.offValue)
+	}
+}
+
+func (p *onOffProperty) OnCommand(callback func(value bool)) {
+	hass.ReceiveString(p, p.CommandTopic(), func(topic, payload string) {
+		if strings.EqualFold(payload, p.onValue) {
+			callback(true)
+		} else if strings.EqualFold(payload, p.offValue) {
+			callback(false)
+		} else {
+			log.Printf("Invalid value received on %s: %s\n", topic, payload)
 		}
 	})
 }

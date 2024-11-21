@@ -20,12 +20,16 @@ func TestLightIsOn(t *testing.T) {
 	})
 
 	light := proxy.NewLight(mockPubSub, config)
+	events := make(chan bool)
 
 	statesensor := light.State()
+	statesensor.ReceiveEvent(func(event bool) {
+		events <- event
+	})
 	if !getted {
 		t.Fail()
 	}
-	value := <-statesensor.Events()
+	value := <-events
 	if !value {
 		t.Fail()
 	}
