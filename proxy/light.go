@@ -23,20 +23,10 @@ func NewLight(pubsub hass.IPubSubRuntime, config *hass.Light) hass.ILight {
 			topic:  config.CommandTopic,
 		},
 	}
-	jsonStateField := jsonStateField{
+	jsonStateField := &jsonStateField{
 		actuator:  &result.actuator,
 		subfields: map[string]iSubField{},
 	}
-	pubsub.Receive(config.StateTopic, func(topic string, payload []byte) {
-		var data map[string]interface{}
-		err := json.Unmarshal(payload, &data)
-		if err != nil {
-			log.Println(err)
-			return
-		}
-		jsonStateField.process(data)
-	})
-	pubsub.Send(config.StateTopic+"/get", getStatePayload)
 
 	result.state = jsonStateField.NewOnOffField("state")
 	if config.Brightness {
@@ -51,6 +41,18 @@ func NewLight(pubsub hass.IPubSubRuntime, config *hass.Light) hass.ILight {
 			}
 		}
 	}
+
+	pubsub.Receive(config.StateTopic, func(topic string, payload []byte) {
+		var data map[string]interface{}
+		err := json.Unmarshal(payload, &data)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		jsonStateField.process(data)
+	})
+	pubsub.Send(config.StateTopic+"/get", getStatePayload)
+
 	return result
 }
 

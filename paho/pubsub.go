@@ -8,8 +8,9 @@ import (
 )
 
 type msg struct {
-	topic   string
-	payload []byte
+	topic    string
+	retained bool
+	payload  []byte
 }
 
 type PahoPubSub struct {
@@ -52,7 +53,7 @@ func (ps *PahoPubSub) onConnect(client mqtt.Client) {
 	}
 	for len(ps.offlineMsgs) > 0 {
 		m := <-ps.offlineMsgs
-		ps.internalsend(m.topic, m.payload, true)
+		ps.internalsend(m.topic, m.payload, m.retained)
 	}
 	ps.connstate <- true
 }
@@ -63,6 +64,11 @@ func (ps *PahoPubSub) ConnectionState() chan bool {
 
 func (ps *PahoPubSub) Send(topic string, payload []byte) error {
 	if ps.Client == nil || !ps.Client.IsConnected() {
+		ps.offlineMsgs <- msg{
+			topic:    topic,
+			retained: false,
+			payload:  payload,
+		}
 		return nil
 	}
 	return ps.internalsend(topic, payload, false)
@@ -77,8 +83,9 @@ func (ps *PahoPubSub) internalsend(topic string, payload []byte, retained bool) 
 func (ps *PahoPubSub) SendRetained(topic string, payload []byte) error {
 	if ps.Client == nil || !ps.Client.IsConnected() {
 		ps.offlineMsgs <- msg{
-			topic:   topic,
-			payload: payload,
+			topic:    topic,
+			retained: true,
+			payload:  payload,
 		}
 		return nil
 	}
