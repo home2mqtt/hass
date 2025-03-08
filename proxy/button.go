@@ -20,5 +20,6 @@ func (b *button_impl) SendEvent(event string) {
 }
 
 func NewButton(runtime hass.IPubSubRuntime, config *hass.Sensor) hass.ISensor[string] {
-	return &button_impl{topic: config.Topic, runtime: runtime}
+	// TODO: implicit suffix, known to work with Z2M
+	return &button_impl{topic: config.Topic + "/action", runtime: runtime}
 }
