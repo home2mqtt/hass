@@ -7,8 +7,9 @@ import (
 )
 
 type contact_impl struct {
-	runtime hass.IPubSubRuntime
-	onValue string
+	runtime  hass.IPubSubRuntime
+	onValue  string
+	offValue string
 }
 
 // ReceiveEvent implements hass.ISensor.
@@ -22,7 +23,13 @@ func (c *contact_impl) ReceiveEvent(received func(event bool)) {
 
 // SendEvent implements hass.ISensor.
 func (c *contact_impl) SendEvent(event bool) {
-	panic("unimplemented")
+	var value string
+	if event {
+		value = c.onValue
+	} else {
+		value = c.offValue
+	}
+	c.runtime.Send("contact", []byte(value))
 }
 
 func NewContact(runtime hass.IPubSubRuntime, config *hass.BinarySensor) hass.ISensor[bool] {
@@ -32,5 +39,11 @@ func NewContact(runtime hass.IPubSubRuntime, config *hass.BinarySensor) hass.ISe
 	} else {
 		onValue = fmt.Sprintf("%v", config.PayLoadOn)
 	}
-	return &contact_impl{runtime: runtime, onValue: onValue}
+	var offValue string
+	if config.PayLoadOff == nil {
+		offValue = "OFF"
+	} else {
+		offValue = fmt.Sprintf("%v", config.PayLoadOff)
+	}
+	return &contact_impl{runtime: runtime, onValue: onValue, offValue: offValue}
 }
