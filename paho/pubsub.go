@@ -3,6 +3,8 @@ package paho
 import (
 	"log"
 
+	"sync"
+
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/home2mqtt/hass"
 )
@@ -18,6 +20,8 @@ type PahoPubSub struct {
 	subscriptions map[string][]func(topic string, payload []byte)
 	connstate     chan bool
 	offlineMsgs   chan msg
+	// mutex to prevent concurrent modification of subscriptions
+	sync.Mutex
 }
 
 var _ hass.IPubSubConnecterRuntime = &PahoPubSub{}
@@ -46,6 +50,8 @@ func (ps *PahoPubSub) onConnectionLost(c mqtt.Client, err error) {
 }
 
 func (ps *PahoPubSub) onConnect(client mqtt.Client) {
+	ps.Lock()
+	defer ps.Unlock()
 	for topic, callbacks := range ps.subscriptions {
 		for _, callback := range callbacks {
 			subscribe(ps.Client, topic, callback)
@@ -99,6 +105,8 @@ func subscribe(client mqtt.Client, topicpattern string, callback func(topic stri
 }
 
 func (ps *PahoPubSub) Receive(topicpattern string, callback func(topic string, payload []byte)) {
+	ps.Lock()
+	defer ps.Unlock()
 	list, ok := ps.subscriptions[topicpattern]
 	if ok {
 		list = append(list, callback)
